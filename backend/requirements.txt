@@ -1,0 +1,14 @@
+Flask
+Flask-Cors
+ultralytics
+opencv-python
+schedule
+gunicorn
+numpy
+imageio
+imageio-ffmpeg
+scikit-image
+ffmpeg-python
+pymongo
+flask-login
+bcrypt
