@@ -169,4 +169,62 @@ body {
     font-weight: bold;
     color: #333;
 }
+
+/* Dashboard Grid Layout CSS - Moved from dashboard.py */
+.content .grid-container {
+    /* Three columns - first column wider, Map and Camera-info columns same width */
+    grid-template-columns: 1.5fr 0.75fr 0.75fr;
+    /* Two rows with adjusted heights - first row 71%, second row 29% (except third column) */
+    grid-template-rows: 2.45fr 1fr;
+    /* Create 3x2 grid */
+    display: grid;
+    grid-template-areas: 
+        "live-feed map right-column"
+        "alerts stats right-column";
+    /* Set specific gap between rows to exactly 20px */
+    grid-row-gap: 20px;
+    grid-column-gap: 20px;
+    height: 100%;
+}
+
+/* Right column container that spans both rows */
+.right-column-container {
+    grid-area: right-column;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 20px; /* Match the main grid gap */
+}
+
+/* Set equal heights for the boxes in right column */
+.camera-area, .calendar-area {
+    flex: 1; /* Equal flex distribution (50% each) */
+    min-height: 0; /* Needed for flex to work properly */
+}
+
+/* Remove fixed heights and use relative heights instead */
+.upper-box {
+    height: 100%; /* Will be controlled by grid-template-rows */
+}
+
+.lower-box {
+    height: 100%; /* Will be controlled by grid-template-rows */
+}
+
+/* Make the live feed match other boxes in top row */
+.live-feed-box {
+    height: 100% !important;
+    margin-bottom: 0 !important; /* Ensure no extra margin */
+}
+
+/* Ensure no extra margin for alerts box */
+.alerts-area {
+    margin-top: 0 !important;
+}
+
+/* Define grid areas */
+.live-feed-area { grid-area: live-feed; }
+.alerts-area { grid-area: alerts; }
+.map-area { grid-area: map; }
+.stats-area { grid-area: stats; }
 '''

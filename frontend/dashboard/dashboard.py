@@ -242,14 +242,6 @@ def home_page():
     # Apply styles from styles.py
     ui.add_css(STYLES)
     
-    # Add custom CSS to adjust grid column widths
-    ui.add_css('''
-        .content .grid-container {
-            /* Adjust column ratios: 1.5fr for Live Feed, 1fr for Map, 0.5fr for Camera Info */
-            grid-template-columns: 1.5fr 1fr 0.5fr;
-        }
-    ''')
-
     # Create page structure
     with ui.element('div').classes('main-container'):
         # Left menu
@@ -265,16 +257,16 @@ def home_page():
                 ui.label('Dashboard').classes('menu-text')
 
             with ui.element('div').classes('menu-item'):
-                ui.icon('speed').classes('menu-icon')
-                ui.label('Benchmark').classes('menu-text')
-
-            with ui.element('div').classes('menu-item'):
                 ui.icon('computer').classes('menu-icon')
                 ui.label('AI Modules').classes('menu-text')
 
             with ui.element('div').classes('menu-item'):
                 ui.icon('location_on').classes('menu-icon')
                 ui.label('Location').classes('menu-text')
+
+            with ui.element('div').classes('menu-item'):
+                ui.icon('speed').classes('menu-icon')
+                ui.label('Settings').classes('menu-text')
 
             with ui.element('div').classes('menu-item'):
                 ui.icon('alarm').classes('menu-icon')
@@ -288,45 +280,54 @@ def home_page():
         with ui.element('div').classes('content-wrapper'):
             with ui.element('div').classes('content'):
                 with ui.element('div').classes('grid-container'):
-                    # First row - three boxes
-                    with ui.element('div').classes('grid-box') as status_box:
+                    # First column - top box
+                    with ui.element('div').classes('grid-box live-feed-box live-feed-area'):
                         ui.label('Live Fire Detection Feed').classes('grid-box-title')
-                        with ui.element('div').style('height: 300px; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 8px; background: #f6f6fa; margin: 0 15px 15px 15px;') as image_container:
-                            # MJPEG Stream Image - Initially hidden, adjust max-width/height to fill container
+                        with ui.element('div').style('height: calc(100% - 50px); display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; border-radius: 8px; background: #f6f6fa; margin: 0 15px 15px 15px;') as image_container:
+                            # MJPEG Stream Image
                             mjpeg_image = ui.html('''
                                 <img id="mjpeg_stream" src="" 
                                      style="max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 2px 8px #aaa; display: none; object-fit: contain;" />
-                            ''').style('display: none; width: 100%; height: 100%;') # Make HTML element fill container too
-                            # Status Label - Initially shown
+                            ''').style('display: none; width: 100%; height: 100%;')
+                            # Status Label
                             stream_status_label = ui.label('Click the CAMERA button to start the feed.').style('font-size: 18px; color: #888;')
-
-                    # Map Box
-                    with ui.element('div').classes('grid-box') as map_box:
-                        ui.label('Map').classes('grid-box-title')
-                        with ui.element('div').classes('map-container') as map_container:
-                            loading_label = ui.label('Loading map...').classes('loading-overlay')
-                            map_view = ui.leaflet(center=(52.1797832, 10.5599424), zoom=15).classes('w-full h-full')
-
-                    with ui.element('div').classes('grid-box'):  # Info Box
-                        ui.label('Cameras Information').classes('grid-box-title')
-                        with ui.row().classes('w-full justify-start mt-4'):
-                            camera_button = ui.button('CAMERA', on_click=toggle_fire_detection).style('padding: 8px 16px; background-color: #F44336; color: white;')
-                            
-                            # Timer to update button color and shared state
-                            ui.timer(3.0, lambda: update_camera_status(camera_button), active=True)
-
-                    # Second row - three boxes
-                    with ui.element('div').classes('grid-box'):
+                    
+                    # First column - bottom box
+                    with ui.element('div').classes('grid-box lower-box alerts-area'):
                         ui.label('Last Alerts').classes('grid-box-title')
                         ui.label('No Recent Alerts')
-
-                    with ui.element('div').classes('grid-box'):
+                    
+                    # Second column - top box
+                    with ui.element('div').classes('grid-box upper-box map-area'):
+                        ui.label('Map').classes('grid-box-title')
+                        with ui.element('div').classes('map-container').style('height: calc(100% - 50px);') as map_container:
+                            loading_label = ui.label('Loading map...').classes('loading-overlay')
+                            map_view = ui.leaflet(center=(52.1797832, 10.5599424), zoom=15).classes('w-full h-full')
+                    
+                    # Second column - bottom box
+                    with ui.element('div').classes('grid-box lower-box stats-area'):
                         ui.label('Detection Statistics').classes('grid-box-title')
                         ui.label('Feature currently disabled')
-
-                    with ui.element('div').classes('grid-box'):
-                        ui.label('Calendar').classes('grid-box-title')
-                        ui.date().props('color="primary" minimal').classes('w-full h-full')
+                    
+                    # Right column container (spans both rows)
+                    with ui.element('div').classes('right-column-container'):
+                        # Right column - top box (Camera Information)
+                        with ui.element('div').classes('grid-box camera-area'):
+                            ui.label('Cameras Information').classes('grid-box-title')
+                            with ui.row().classes('w-full justify-start mt-4'):
+                                camera_button = ui.button('CAMERA', on_click=toggle_fire_detection).style('padding: 8px 16px; background-color: #F44336; color: white;')
+                                
+                                # Timer to update button color and shared state
+                                ui.timer(3.0, lambda: update_camera_status(camera_button), active=True)
+                        
+                        # Right column - bottom box (Calendar)
+                        with ui.element('div').classes('grid-box calendar-area'):
+                            ui.label('Calendar').classes('grid-box-title')
+                            
+                            # استفاده از ui.date برای تقویم پویا
+                            with ui.element('div').classes('w-full flex justify-center'): # برای وسط‌چین کردن
+                                ui.date(value='2025/05/01', on_change=lambda e: ui.notify(f'Selected date: {e.value}'))\
+                                    .props('flat bordered minimal').classes('w-full max-w-xs') # اضافه کردن minimal برای حذف هدر
 
             # Footer
             with ui.element('div').classes('footer'):
